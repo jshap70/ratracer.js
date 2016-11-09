@@ -1,22 +1,68 @@
+var canvas;
+var context;
 
-var framePixelHeight = 500;
-var framePixelWidth = 500;
+var framePixelWidth;
 
 var frameHeight = 1;
 var frameWidth = 1;
 var frameDepth = 1;
-var pixelHeight = frameHeight / framePixelHeight;
-var pixelWidth = frameWidth / framePixelWidth;
+var pixelHeight;
+var pixelWidth;
 var eye = vec3(0, 0, 0);
 
 var objects = [];
+var pixels = [];
 
-function traceRay(pixel) {
-    var us = (pixel[0] + .5) * pixelWidth - (frameWidth / 2);
-    var vs = (pixel[1] + .5) * pixelHeight - (frameHeight / 2);
-    var ws = frameDepth;
-    var s = vec3(us, vs, ws);
+var imagedata;
 
+window.onload = function() {
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext("2d");
+    imagedata = context.createImageData(canvas.width, canvas.height);
+
+    pixelHeight = frameHeight / canvas.height;
+    pixelWidth = frameWidth / canvas.width;
+
+    for (var r = 0; r < canvas.height; r++) {
+        row = [];
+        for (var c = 0; c < canvas.width; c++) {
+            row.push(vec4(0, 0, 0, .25));
+        }
+        pixels.push(row);
+    }
+
+    window.requestAnimationFrame(main);
+};
+
+function writeToPixel(height, width, color) {
+    var pixelindex = (height * canvas.height + width) * 4;
+    imagedata.data[pixelindex]   = color[0] * 255;
+    imagedata.data[pixelindex+1] = color[1] * 255;
+    imagedata.data[pixelindex+2] = color[2] * 255;
+    imagedata.data[pixelindex+3] = color[3] * 255;
+}
+
+function main() {
+    for (var r = 0; r < pixels.length; r++) {
+        for (var c = 0; c < pixels[r].length; c++) {
+            var us = (r + .5) * pixelWidth - (frameWidth / 2);
+            var vs = (c + .5) * pixelHeight - (frameHeight / 2);
+            var ws = frameDepth;
+            var s = vec3(us, vs, ws);
+            traceRay(s);
+        }
+    }
+
+    for (var r = 0; r < pixels.length; r++) {
+        for (var c = 0; c < pixels[r].length; c++) {
+            writeToPixel(r, c, pixels[r][c])
+        }
+    }
+
+    context.putImageData(imagedata, 0, 0);
+}
+
+function traceRay(s) {
     var minT = Number.POSITIVE_INFINITY;
     var minObject = undefined;
     for (var i = 0; i < objects.length; i++) {
