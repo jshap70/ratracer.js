@@ -32,7 +32,14 @@ class Triangle {
     }
 
     intersects(p1, p2) {
-        // TODO: p1 + (p2 - p1) * t = v1 + (v2 - v1) * u + (v3 - v1) * v
+        var v12 = subtract(this.v1, this.v2);
+        var v13 = subtract(this.v1, this.v3);
+        var normal = cross(v12, v13);
+        var d = dot(normal, this.v3);
+        var t = (d - dot(normal, p1)) / dot(normal, subtract(p2, p1));
+        // plane equation: normal (dot) (v3 - v1) = 0
+        //                  normal (dot) v3 = d
+        return t;
     }
 }
 
