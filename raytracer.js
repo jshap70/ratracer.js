@@ -49,7 +49,10 @@ function main() {
             var vs = (c + .5) * pixelHeight - (frameHeight / 2);
             var ws = frameDepth;
             var s = vec3(us, vs, ws);
-            traceRay(s);
+            color = traceRay(s);
+            if (color != null) {
+                pixels[r][c] = color
+            }
         }
     }
 
