@@ -48,12 +48,13 @@ class Triangle {
         var v12 = subtract(this.v2, this.v1);
         var v13 = subtract(this.v3, this.v1);
         var normal = cross(v12, v13);
+        normal = scale(1 / length(normal), normal);
         var d = dot(normal, this.v3);
-        var denom =  dot(normal, subtract(p2, p1);
+        var denom =  dot(normal, subtract(p2, p1));
         if (denom == 0) {
             return [Number.POSITIVE_INFINITY];
         }
-        var t = (d - dot(normal, p1)) / denom);
+        var t = (d - dot(normal, p1)) / denom;
         var p = add(p1, scale(t, subtract(p2, p1)));
 
         // Barycentric technique
@@ -74,7 +75,7 @@ class Triangle {
         var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
         var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
         var within = (u >= 0) && (v >= 0) && (u + v < 1);
-        return within ? [t, p] : [Number.POSITIVE_INFINITY];
+        return within ? [t, p, normal] : [Number.POSITIVE_INFINITY];
     }
 }
 
@@ -82,6 +83,7 @@ class Triangle {
  * build parameters for the ray
  * find intersection of ray with objects
  * determine intersection that’s closest to eye
+
  * find color of light along this ray from object at closest intersection
  * save color in array or display it
  */
