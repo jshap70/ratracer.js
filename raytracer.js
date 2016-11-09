@@ -30,6 +30,7 @@ function traceRay(pixel) {
     var color = undefined;
     if (minT < Number.POSITIVE_INFINITY) {
         // TODO: get color of minObject at this point
+        color = vec3(0, 0, 0);
     }
     return color;
 }
@@ -48,7 +49,11 @@ class Triangle {
         var v13 = subtract(this.v3, this.v1);
         var normal = cross(v12, v13);
         var d = dot(normal, this.v3);
-        var t = (d - dot(normal, p1)) / dot(normal, subtract(p2, p1));
+        var denom =  dot(normal, subtract(p2, p1);
+        if (denom == 0) {
+            return [Number.POSITIVE_INFINITY];
+        }
+        var t = (d - dot(normal, p1)) / denom);
         var p = add(p1, scale(t, subtract(p2, p1)));
 
         // Barycentric technique
@@ -69,7 +74,7 @@ class Triangle {
         var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
         var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
         var within = (u >= 0) && (v >= 0) && (u + v < 1);
-        return [within, t, p, u, v];
+        return within ? [t, p] : [Number.POSITIVE_INFINITY];
     }
 }
 
