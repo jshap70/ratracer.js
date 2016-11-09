@@ -20,9 +20,18 @@ function traceRay(pixel) {
     var minT = Number.POSITIVE_INFINITY;
     var minObject = undefined;
     for (var i = 0; i < objects.length; i++) {
-        var t = objects[i].intersects(eye, s);
-        // TODO: do stuff with t
+        var result = objects[i].intersects(eye, s);
+        if (result[0]) {
+            if (result[1] < minT) {
+                minObject = objects[i];
+            }
+        }
     }
+    var color = undefined;
+    if (minT < Number.POSITIVE_INFINITY) {
+        // TODO: get color of minObject at this point
+    }
+    return color;
 }
 
 class Triangle {
@@ -60,7 +69,7 @@ class Triangle {
         var u = (dot11 * dot02 - dot01 * dot12) * invDenom;
         var v = (dot00 * dot12 - dot01 * dot02) * invDenom;
         var within = (u >= 0) && (v >= 0) && (u + v < 1);
-        return [within, t, u, v];
+        return [within, t, p, u, v];
     }
 }
 
