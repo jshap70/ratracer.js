@@ -4,5 +4,6 @@ var objects = [
 ];
 
 var lights = [
-    vec3(1, 1, 1);
+    new SimplePointSource(vec3(1, 1, 1), vec3(.2, .2, .8)),
+    new ComplexPointSource(vec3(1, 1, 1), vec3(.2, .2, .8), 1, 1, 1)
 ];

@@ -41,3 +41,40 @@ class Triangle {
         return within ? [t, p, normal] : [Number.POSITIVE_INFINITY];
     }
 }
+
+class SimplePointSource {
+    constructor(location, color) {
+        this.location = location;
+        this.color = color;
+    }
+
+    intensity(point) {
+        var distance = length(subtract(point, this.location));
+        if (distance == 0) {
+            return this.color;
+        }
+        var scalar = 1 / (distance * distance);
+        var intensity = scale(scalar, this.color);
+        return intensity;
+    }
+}
+
+class ComplexPointSource extends SimplePointSource {
+    constructor(location, color, a, b, c) {
+        super(location, color);
+        this.a = a;
+        this.b = b;
+        this.c = c;
+    }
+
+    intensity(point) {
+        var distance = length(subtract(point, this.location));
+        if (distance == 0) {
+            return this.color;
+        }
+        var scalar = 1 / (this.a + this.b * distance 
+            + this.c * distance * distance);
+        var intensity = scale(scalar, this.color);
+        return intensity;
+    }
+}
