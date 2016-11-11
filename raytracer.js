@@ -9,6 +9,7 @@ var frameDepth = 1;
 var pixelHeight;
 var pixelWidth;
 var eye = vec3(0, 0, 0);
+var defaultColor = vec4(0, 0, 0, .25);
 
 var pixels = [];
 
@@ -25,7 +26,7 @@ window.onload = function() {
     for (var r = 0; r < canvas.height; r++) {
         row = [];
         for (var c = 0; c < canvas.width; c++) {
-            row.push(vec4(0, 0, 0, .25));
+            row.push(defaultColor);
         }
         pixels.push(row);
     }
@@ -35,9 +36,9 @@ window.onload = function() {
 
 function writeToPixel(height, width, color) {
     var pixelindex = (height * canvas.height + width) * 4;
-    imagedata.data[pixelindex]   = color[0];
-    imagedata.data[pixelindex+1] = color[1];
-    imagedata.data[pixelindex+2] = color[2];
+    imagedata.data[pixelindex]   = color[0] * 255;
+    imagedata.data[pixelindex+1] = color[1] * 255;
+    imagedata.data[pixelindex+2] = color[2] * 255;
     imagedata.data[pixelindex+3] = color[3] * 255;
 }
 
@@ -72,17 +73,20 @@ function getS(r, c) {
 function traceRay(s) {
     var minT = Number.POSITIVE_INFINITY;
     var minObject = undefined;
+    var result;
     for (var i = 0; i < objects.length; i++) {
-        var result = objects[i].intersects(eye, s);
+        result = objects[i].intersects(eye, s);
         if (result[0] < minT) {
             minT = result[0];
             minObject = objects[i];
         }
     }
-    var color = undefined;
+    var color = defaultColor;
     if (minT < Number.POSITIVE_INFINITY) {
-        // TODO: get color of minObject at this point
-        color = vec4(100, 50, 75, 1);
+        color = vec4(0, 0, 0, 1);
+        for (var j = 0; j < lights.length; j++) {
+            color = add(minObject.lightFrom(result[1], eye, s, lights[j]), color);
+        }
     }
     return color;
 }
