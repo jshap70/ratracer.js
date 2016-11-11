@@ -54,6 +54,106 @@ class Triangle {
     }
 }
 
+class Cube {
+    constructor(v1,size,
+        ambient = vec4(1,1,1,1),
+        diffuse = vec4(1,1,1,1),
+        specular = vec4(1,1,1,1),
+        shininess = 100) {
+        this.v1 = vec3(v1[0]-size, v1[1]-size, v1[2]-size);
+        this.v2 = vec3(v1[0]+size, v1[1]+size, v1[2]+size);
+        this.ambient = ambient;
+        this.diffuse = diffuse;
+        this.specular = specular;
+        this.shininess = shininess;
+
+        this.points = [ this.v1,
+                        vec3(this.v1[0], this.v1[1], this.v2[2]),
+                        vec3(this.v1[0], this.v2[1], this.v2[2]),
+                        vec3(this.v1[0], this.v2[1], this.v1[2]),
+                        vec3(this.v2[0], this.v1[1], this.v1[2]),
+                        vec3(this.v2[0], this.v1[1], this.v2[2]),
+                        this.v2,
+                        vec3(this.v2[0], this.v2[1], this.v1[2])
+                      ]
+
+        this.faces = [  [0,1,5],
+                        [5,4,0],
+                        [0,4,7],
+                        [7,3,0],
+                        [0,3,2],
+                        [2,1,0],
+                        [6,5,1],
+                        [1,2,6],
+                        [6,2,3],
+                        [3,7,6],
+                        [6,7,4],
+                        [4,5,6] ]
+    }
+
+    intersects(p1, p2) {
+        var mint = Infinity;
+        var minp = undefined;
+        var norm = undefined;
+
+        for (var i = 0; i < this.faces.length; i++) {
+            var v1 = this.points[this.faces[i][0]];
+            var v2 = this.points[this.faces[i][1]];
+            var v3 = this.points[this.faces[i][2]];
+
+            var v12 = subtract(v1, v2);
+            var v13 = subtract(v3, v2);
+            var normal = normalize(cross(v12, v13));
+
+
+            // plane equation: normal (dot) (v3 - v1) = 0
+            //                  normal (dot) v3 = d
+            var d = dot(normal, v3);
+            var denom = dot(normal, subtract(p2, p1));
+            if (denom >= 0) {
+                continue;
+            }
+            var t = (d - dot(normal, p1)) / denom;
+            var p = add(p1, scale(t, subtract(p2, p1)));
+
+            // Barycentric technique
+            // vectors
+            var vec0 = v13;
+            var vec1 = v12;
+            var vec2 = subtract(p, v2);
+
+            // dot products
+            var dot00 = dot(vec0, vec0);
+            var dot01 = dot(vec0, vec1);
+            var dot02 = dot(vec0, vec2);
+            var dot11 = dot(vec1, vec1);
+            var dot12 = dot(vec1, vec2);
+
+            // barycentric coords
+            var denom = (dot00 * dot11 - dot01 * dot01);
+            var u = (dot11 * dot02 - dot01 * dot12) / denom;
+            var v = (dot00 * dot12 - dot01 * dot02) / denom;
+            var within = (u >= 0) && (v >= 0) && (u + v < 1);
+
+            if (within && mint > t) {
+                mint = t;
+                minp = p;
+                norm = normal;
+            }
+        }
+        return [mint, minp, norm];
+    }
+
+    lightFrom(point, eye, lightSource) {
+        var k = this.intersects(eye, point);
+        if (!(k[0] < Infinity)) {
+            return vec4(0, 0, 0, 1);
+        }
+        var normal = k[2];
+        return planarLightFrom(point, eye, normal, this, lightSource);
+    }
+}
+
 class Sphere {
     constructor(center, radius,
         ambient = vec4(1,1,1,1),
