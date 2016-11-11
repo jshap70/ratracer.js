@@ -87,7 +87,7 @@ function traceRay(s) {
     if (minT < Number.POSITIVE_INFINITY) {
         color = vec4(0, 0, 0, 1);
         for (var j = 0; j < lights.length; j++) {
-            color = add(minObject.lightFrom(minP, eye, s, lights[j]), color);
+            color = add(minObject.lightFrom(minP, eye, lights[j]), color);
         }
     }
     return color;

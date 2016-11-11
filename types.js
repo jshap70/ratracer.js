@@ -49,49 +49,8 @@ class Triangle {
         return within ? [t, p] : [Number.POSITIVE_INFINITY];
     }
 
-    lightFrom(point, eye, s, lightSource) {
-        var ambient, diffuse, specular;
-
-        // ambient
-        ambient = mult(lightSource.ambient, this.ambient);
-
-        // check for shadow
-        var isShadow = false;
-        for (var i = 0; i < objects.length; i++) {
-            if (objects[i] != this) {
-                var t = objects[i].intersects(lightSource.location, point)[0];
-                if (t < Number.POSITIVE_INFINITY && t < 1) {
-                    isShadow = true;
-                }
-            }
-        }
-        if (isShadow) {
-            diffuse = vec4(0, 0, 0, 1);
-            specular = vec4(0, 0, 0, 1);
-        } else {
-            // diffuse
-            var lightPosition = subtract(lightSource.location, point);
-            var d = Math.max(dot(this.normal, lightPosition), 0.0);
-            diffuse = mult(lightSource.diffuse, this.diffuse);
-            diffuse = scale(d, diffuse);
-            diffuse[3] = 1.0;
-
-            // specular
-            var ray = subtract(eye, s);
-            var half = normalize(add(lightPosition, ray));
-            var ss = dot(half, this.normal);
-            if (ss > 0) {
-                var specularProduct = mult(lightSource.specular, this.specular);
-                specular = scale(Math.pow(ss, this.shininess), specularProduct);
-                specular[3] = 1.0;
-            } else {
-                specular = vec4(0, 0, 0, 1);
-            }
-            if (d < 0) {
-                specular = vec4(0, 0, 0, 1);
-            }
-        }
-        return mix(mix(ambient, diffuse), specular);
+    lightFrom(point, eye, lightSource) {
+        return planarLightFrom(point, eye, this.normal, this, lightSource);
     }
 }
 
@@ -120,50 +79,9 @@ class Sphere {
         return [t, p];
     }
 
-    lightFrom(point, eye, s, lightSource) {
+    lightFrom(point, eye, lightSource) {
         var normal = normalize(subtract(point, this.center));
-        var ambient, diffuse, specular;
-
-        // ambient
-        ambient = mult(lightSource.ambient, this.ambient);
-
-        // check for shadow
-        var isShadow = false;
-        for (var i = 0; i < objects.length; i++) {
-            if (objects[i] != this) {
-                var t = objects[i].intersects(lightSource.location, point)[0];
-                if (t < Number.POSITIVE_INFINITY && t < 1) {
-                    isShadow = true;
-                }
-            }
-        }
-        if (isShadow) {
-            diffuse = vec4(0, 0, 0, 1);
-            specular = vec4(0, 0, 0, 1);
-        } else {
-            // diffuse
-            var lightPosition = subtract(lightSource.location, point);
-            var d = Math.max(dot(normal, lightPosition), 0.0);
-            diffuse = mult(lightSource.diffuse, this.diffuse);
-            diffuse = scale(d, diffuse);
-            diffuse[3] = 1.0;
-
-            // specular
-            var ray = subtract(eye, s);
-            var half = normalize(add(lightPosition, ray));
-            var ss = dot(half, normal);
-            if (ss > 0) {
-                var specularProduct = mult(lightSource.specular, this.specular);
-                specular = scale(Math.pow(ss, this.shininess), specularProduct);
-                specular[3] = 1.0;
-            } else {
-                specular = vec4(0, 0, 0, 1);
-            }
-            if (d < 0) {
-                specular = vec4(0, 0, 0, 1);
-            }
-        }
-        return mix(mix(ambient, diffuse), specular);
+        return planarLightFrom(point, eye, normal, this, lightSource);
     }
 }
 
@@ -177,4 +95,49 @@ class PointSource {
         this.b = b;
         this.c = c;
     }
+}
+
+function planarLightFrom(point, eye, normal, thiis, lightSource) {
+    var ambient, diffuse, specular;
+
+    // ambient
+    ambient = mult(lightSource.ambient, thiis.ambient);
+
+    // check for shadow
+    var isShadow = false;
+    for (var i = 0; i < objects.length; i++) {
+        if (objects[i] != thiis) {
+            var t = objects[i].intersects(lightSource.location, point)[0];
+            if (t < Number.POSITIVE_INFINITY && t < 1) {
+                isShadow = true;
+            }
+        }
+    }
+    if (isShadow) {
+        diffuse = vec4(0, 0, 0, 1);
+        specular = vec4(0, 0, 0, 1);
+    } else {
+        // diffuse
+        var lightPosition = subtract(lightSource.location, point);
+        var d = Math.max(dot(normal, lightPosition), 0.0);
+        diffuse = mult(lightSource.diffuse, thiis.diffuse);
+        diffuse = scale(d, diffuse);
+        diffuse[3] = 1.0;
+
+        // specular
+        var ray = subtract(eye, point);
+        var half = normalize(add(lightPosition, ray));
+        var ss = dot(half, normal);
+        if (ss > 0) {
+            var specularProduct = mult(lightSource.specular, thiis.specular);
+            specular = scale(Math.pow(ss, thiis.shininess), specularProduct);
+            specular[3] = 1.0;
+        } else {
+            specular = vec4(0, 0, 0, 1);
+        }
+        if (d < 0) {
+            specular = vec4(0, 0, 0, 1);
+        }
+    }
+    return mix(mix(ambient, diffuse), specular);
 }
