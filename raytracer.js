@@ -72,12 +72,14 @@ function getS(r, c) {
 
 function traceRay(s) {
     var minT = Number.POSITIVE_INFINITY;
+    var minP = undefined;
     var minObject = undefined;
     var result;
     for (var i = 0; i < objects.length; i++) {
         result = objects[i].intersects(eye, s);
         if (result[0] < minT) {
             minT = result[0];
+            minP = result[1];
             minObject = objects[i];
         }
     }
@@ -85,7 +87,7 @@ function traceRay(s) {
     if (minT < Number.POSITIVE_INFINITY) {
         color = vec4(0, 0, 0, 1);
         for (var j = 0; j < lights.length; j++) {
-            color = add(minObject.lightFrom(result[1], eye, s, lights[j]), color);
+            color = add(minObject.lightFrom(minP, eye, s, lights[j]), color);
         }
     }
     return color;

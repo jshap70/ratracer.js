@@ -3,7 +3,7 @@ class Triangle {
         ambient = vec4(1,1,1,1), 
         diffuse = vec4(1,1,1,1), 
         specular = vec4(1,1,1,1),
-        shininess = 1) {
+        shininess = 100) {
         this.v1 = v1;
         this.v2 = v2;
         this.v3 = v3;
@@ -55,26 +55,41 @@ class Triangle {
         // ambient
         ambient = mult(lightSource.ambient, this.ambient);
 
-        // diffuse
-        var lightPosition = subtract(lightSource.location, point);
-        var d = Math.max(dot(this.normal, lightPosition), 0.0);
-        diffuse = mult(lightSource.diffuse, this.diffuse);
-        diffuse = scale(d, diffuse);
-        diffuse[3] = 1.0;
-
-        // specular
-        var ray = subtract(eye, s);
-        var half = normalize(add(lightPosition, ray));
-        var ss = dot(half, this.normal);
-        if (ss > 0) {
-            var specularProduct = mult(lightSource.specular, this.specular);
-            specular = scale(Math.pow(ss, this.shininess), specularProduct);
-            specular[3] = 1.0;
-        } else {
-            specular = vec4(0, 0, 0, 1);
+        // check for shadow
+        var isShadow = false;
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i] != this) {
+                var t = objects[i].intersects(point, lightSource.location)[0];
+                if (t < Number.POSITIVE_INFINITY) {
+                    isShadow = true;
+                }
+            }
         }
-        if (d < 0) {
+        if (isShadow) {
+            diffuse = vec4(0, 0, 0, 1);
             specular = vec4(0, 0, 0, 1);
+        } else {
+            // diffuse
+            var lightPosition = subtract(lightSource.location, point);
+            var d = Math.max(dot(this.normal, lightPosition), 0.0);
+            diffuse = mult(lightSource.diffuse, this.diffuse);
+            diffuse = scale(d, diffuse);
+            diffuse[3] = 1.0;
+
+            // specular
+            var ray = subtract(eye, s);
+            var half = normalize(add(lightPosition, ray));
+            var ss = dot(half, this.normal);
+            if (ss > 0) {
+                var specularProduct = mult(lightSource.specular, this.specular);
+                specular = scale(Math.pow(ss, this.shininess), specularProduct);
+                specular[3] = 1.0;
+            } else {
+                specular = vec4(0, 0, 0, 1);
+            }
+            if (d < 0) {
+                specular = vec4(0, 0, 0, 1);
+            }
         }
         return add(add(ambient, diffuse), specular);
     }
