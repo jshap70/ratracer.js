@@ -3,7 +3,7 @@ class Triangle {
         ambient = vec4(1,1,1,1), 
         diffuse = vec4(1,1,1,1), 
         specular = vec4(1,1,1,1),
-        shininess = 100) {
+        shininess = 1) {
         this.v1 = v1;
         this.v2 = v2;
         this.v3 = v3;
@@ -21,8 +21,8 @@ class Triangle {
         // plane equation: normal (dot) (v3 - v1) = 0
         //                  normal (dot) v3 = d
         var d = dot(this.normal, this.v3);
-        var denom =  dot(this.normal, subtract(p2, p1));
-        if (denom == 0) {
+        var denom = dot(this.normal, subtract(p2, p1));
+        if (denom >= 0) {
             return [Number.POSITIVE_INFINITY];
         }
         var t = (d - dot(this.normal, p1)) / denom;
