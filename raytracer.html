@@ -1,16 +1,19 @@
 <html>
-<title>raytracer.js</title>
+    <title>raytracer.js</title>
 
-<script type="text/javascript" src="./Common/webgl-utils.js"></script>
-<script type="text/javascript" src="./Common/initShaders.js"></script>
-<script type="text/javascript" src="./Common/MV.js"></script>
-<script type="text/javascript" src="types.js"></script>
-<script type="text/javascript" src="objects.js"></script>
-<script type="text/javascript" src="raytracer.js"></script>
-
-<canvas id="canvas" width="600" height="600">
-    Oops ... your browser doesn't support the HTML5 canvas element
-</canvas>
-<button type="button" onclick=setSceneOne()>Scene 1</button>
-<button type="button" onclick=setSceneTwo()>Scene 2</button>
+    <script type="text/javascript" src="./Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="./Common/initShaders.js"></script>
+    <script type="text/javascript" src="./Common/MV.js"></script>
+    <script type="text/javascript" src="types.js"></script>
+    <script type="text/javascript" src="objects.js"></script>
+    <script type="text/javascript" src="raytracer.js"></script>
+    <body>
+        <canvas id="canvas" width="600" height="600">
+            Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+        <div>
+            <button type="button" onclick=setSceneOne()>Scene 1</button><span>
+            <button type="button" onclick=setSceneTwo()>Scene 2</button></span>
+        </div>
+    </body>
 </html>
