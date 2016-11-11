@@ -1,7 +1,7 @@
 class Triangle {
-    constructor(v1, v2, v3, 
-        ambient = vec4(1,1,1,1), 
-        diffuse = vec4(1,1,1,1), 
+    constructor(v1, v2, v3,
+        ambient = vec4(1,1,1,1),
+        diffuse = vec4(1,1,1,1),
         specular = vec4(1,1,1,1),
         shininess = 1) {
         this.v1 = v1;
@@ -76,7 +76,7 @@ class Triangle {
         if (d < 0) {
             specular = vec4(0, 0, 0, 1);
         }
-        return add(add(ambient, diffuse), specular);
+        return mix(mix(ambient, diffuse), specular);
     }
 }
 
