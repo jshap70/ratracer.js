@@ -13,13 +13,29 @@ var defaultColor = vec4(0, 0, 0, .25);
 var REFLECT_THRESHOLD = 3;
 
 var pixels = [];
+var objects;
+var lights;
 
 var imagedata;
+
+function setSceneOne() {
+    objects = objects1;
+    lights = lights1;
+    window.requestAnimationFrame(main);
+}
+
+function setSceneTwo() {
+    objects = objects2;
+    lights = lights2;
+    window.requestAnimationFrame(main);
+}
 
 window.onload = function() {
     canvas = document.getElementById("canvas");
     context = canvas.getContext("2d");
     imagedata = context.createImageData(canvas.width, canvas.height);
+    objects = objects1;
+    lights = lights1;
 
     pixelHeight = frameHeight / canvas.height;
     pixelWidth = frameWidth / canvas.width;
