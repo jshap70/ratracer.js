@@ -95,6 +95,78 @@ class Triangle {
     }
 }
 
+class Sphere {
+    constructor(center, radius,
+        ambient = vec4(1,1,1,1),
+        diffuse = vec4(1,1,1,1),
+        specular = vec4(1,1,1,1),
+        shininess = 100) {
+        this.center = center;
+        this.radius = radius;
+        this.ambient = ambient;
+        this.diffuse = diffuse;
+        this.specular = specular;
+        this.shininess = shininess;
+    }
+
+    intersects(p1, p2) {
+        var l = normalize(subtract(p1, p2));
+        var oc = subtract(p1, this.center);
+        var loc = length(oc);
+        var b = dot(l, oc);
+        var sqt = Math.sqrt(b * b - loc * loc + this.radius * this.radius);
+        var t = - b + sqt;
+        var p = add(p1, scale(t, l));
+        return [t, p];
+    }
+
+    lightFrom(point, eye, s, lightSource) {
+        var normal = normalize(subtract(point, this.center));
+        var ambient, diffuse, specular;
+
+        // ambient
+        ambient = mult(lightSource.ambient, this.ambient);
+
+        // check for shadow
+        var isShadow = false;
+        for (var i = 0; i < objects.length; i++) {
+            if (objects[i] != this) {
+                var t = objects[i].intersects(lightSource.location, point)[0];
+                if (t < Number.POSITIVE_INFINITY && t < 1) {
+                    isShadow = true;
+                }
+            }
+        }
+        if (isShadow) {
+            diffuse = vec4(0, 0, 0, 1);
+            specular = vec4(0, 0, 0, 1);
+        } else {
+            // diffuse
+            var lightPosition = subtract(lightSource.location, point);
+            var d = Math.max(dot(normal, lightPosition), 0.0);
+            diffuse = mult(lightSource.diffuse, this.diffuse);
+            diffuse = scale(d, diffuse);
+            diffuse[3] = 1.0;
+
+            // specular
+            var ray = subtract(eye, s);
+            var half = normalize(add(lightPosition, ray));
+            var ss = dot(half, normal);
+            if (ss > 0) {
+                var specularProduct = mult(lightSource.specular, this.specular);
+                specular = scale(Math.pow(ss, this.shininess), specularProduct);
+                specular[3] = 1.0;
+            } else {
+                specular = vec4(0, 0, 0, 1);
+            }
+            if (d < 0) {
+                specular = vec4(0, 0, 0, 1);
+            }
+        }
+        return mix(mix(ambient, diffuse), specular);
+    }
+}
+
 class PointSource {
     constructor(location, ambient, diffuse, specular, a, b, c) {
         this.location = location;
@@ -106,20 +178,3 @@ class PointSource {
         this.c = c;
     }
 }
-
-// class SimplePointSource {
-//     constructor(location, color) {
-//         this.location = location;
-//         this.color = color;
-//     }
-
-//     intensity(point) {
-//         var distance = length(subtract(point, this.location));
-//         if (distance == 0) {
-//             return this.color;
-//         }
-//         var scalar = 1 / (distance * distance);
-//         var intensity = scale(scalar, this.color);
-//         return intensity;
-//     }
-// }

@@ -45,9 +45,6 @@ function writeToPixel(height, width, color) {
 function main() {
     for (var r = 0; r < pixels.length; r++) {
         for (var c = 0; c < pixels[r].length; c++) {
-            if (r == 300 && c == 450) {
-                console.log('hi');
-            }
             var s = getS(r, c);
             var color = traceRay(s);
             if (color != null) {
