@@ -10,7 +10,7 @@ var pixelHeight;
 var pixelWidth;
 var eye = vec3(0, 0, 0);
 var defaultColor = vec4(0, 0, 0, .25);
-var REFLECT_THRESHOLD = 1;
+var REFLECT_THRESHOLD = 3;
 
 var pixels = [];
 
@@ -95,10 +95,15 @@ function traceRay(eye, s, deep) {
         for (var j = 0; j < lights.length; j++) {
             color = add(minObject.lightFrom(minP, eye, lights[j]), color);
         }
-        var v = subtract(eye, minP);
-        var theta = - dot(minNorm, v);
-        var leaving = normalize(add(v, scale(2, scale(theta, minNorm))));
-        color = mix(color, traceRay(minP, add(minP, leaving), deep + 1));
+
+        if (minObject.shininess > 500) {
+            var v = subtract(minP, eye);
+            if (v[0] == 0 && v[1] == 0 && v[2] == 0) {
+                return color;
+            }
+            var leaving = normalize(add(v, scale(-2, scale(dot(minNorm, v), minNorm))));
+            color = mix(color, traceRay(minP, add(minP, leaving), deep + 1));
+        }
     }
     return color;
 }

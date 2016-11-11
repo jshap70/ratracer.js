@@ -23,7 +23,7 @@
 
 // scene 2:
 var objects = [
-    new Sphere(vec3(-.3, .3, 2), .25, 
+    new Sphere(vec3(-.3, .3, 2), .25,
                 vec4(.2, .2, .1, 1), vec4(.5, .5, .3, 1), vec4(.8, .8, .6, 1),
                 35),
     new Triangle(vec3(-.3, .9, 2.8), vec3(.7, -.3, 2.3), vec3(-.3, -.3, 2.8),
