@@ -59,8 +59,8 @@ class Triangle {
         var isShadow = false;
         for (var i = 0; i < objects.length; i++) {
             if (objects[i] != this) {
-                var t = objects[i].intersects(point, lightSource.location)[0];
-                if (t < Number.POSITIVE_INFINITY) {
+                var t = objects[i].intersects(lightSource.location, point)[0];
+                if (t < Number.POSITIVE_INFINITY && t < 1) {
                     isShadow = true;
                 }
             }
