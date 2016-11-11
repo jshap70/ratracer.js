@@ -93,6 +93,19 @@ function traceRay(s) {
     return color;
 }
 
+function mix(c1, c2) {
+    out = vec4(0, 0, 0, 1);
+    for (var i = 0; i < 3; i++) {
+        out[i] = c1[i] + c2[i] - (c1[i] * c2[i]);
+        if (out[i] > 1) { // can't happen but just in case
+            out[i] = 1;
+        } else if (out[i] < 0) { // also shouldn't happen
+            out[i] = 0;
+        }
+    }
+    return out;
+}
+
 /*
  * build parameters for the ray
  * find intersection of ray with objects
