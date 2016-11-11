@@ -10,6 +10,7 @@ var pixelHeight;
 var pixelWidth;
 var eye = vec3(0, 0, 0);
 var defaultColor = vec4(0, 0, 0, .25);
+var REFLECT_THRESHOLD = 1;
 
 var pixels = [];
 
@@ -46,7 +47,7 @@ function main() {
     for (var r = 0; r < pixels.length; r++) {
         for (var c = 0; c < pixels[r].length; c++) {
             var s = getS(r, c);
-            var color = traceRay(s);
+            var color = traceRay(eye, s, 0);
             if (color != null) {
                 pixels[r][c] = color;
             }
@@ -70,8 +71,12 @@ function getS(r, c) {
     return s;
 }
 
-function traceRay(s) {
+function traceRay(eye, s, deep) {
+    if (deep >= REFLECT_THRESHOLD) {
+        return vec4(0, 0, 0, 1);
+    }
     var minT = Number.POSITIVE_INFINITY;
+    var minNorm = undefined;
     var minP = undefined;
     var minObject = undefined;
     var result;
@@ -80,6 +85,7 @@ function traceRay(s) {
         if (result[0] < minT) {
             minT = result[0];
             minP = result[1];
+            minNorm = result[2];
             minObject = objects[i];
         }
     }
@@ -89,6 +95,10 @@ function traceRay(s) {
         for (var j = 0; j < lights.length; j++) {
             color = add(minObject.lightFrom(minP, eye, lights[j]), color);
         }
+        var v = subtract(eye, minP);
+        var theta = - dot(minNorm, v);
+        var leaving = normalize(add(v, scale(2, scale(theta, minNorm))));
+        color = mix(color, traceRay(minP, add(minP, leaving), deep + 1));
     }
     return color;
 }

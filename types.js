@@ -46,7 +46,7 @@ class Triangle {
         var u = (dot11 * dot02 - dot01 * dot12) / denom;
         var v = (dot00 * dot12 - dot01 * dot02) / denom;
         var within = (u >= 0) && (v >= 0) && (u + v < 1);
-        return within ? [t, p] : [Number.POSITIVE_INFINITY];
+        return within ? [t, p, this.normal] : [Number.POSITIVE_INFINITY];
     }
 
     lightFrom(point, eye, lightSource) {
@@ -75,8 +75,11 @@ class Sphere {
         var b = dot(l, oc);
         var sqt = Math.sqrt(b * b - loc * loc + this.radius * this.radius);
         var t = - b + sqt;
+        if (!t) {
+            return [Math.POSITIVE_INFINITY];
+        }
         var p = add(p1, scale(t, l));
-        return [t, p];
+        return [t, p, normalize(subtract(p, this.center))];
     }
 
     lightFrom(point, eye, lightSource) {
@@ -135,9 +138,9 @@ function planarLightFrom(point, eye, normal, thiis, lightSource) {
         } else {
             specular = vec4(0, 0, 0, 1);
         }
-        if (d < 0) {
-            specular = vec4(0, 0, 0, 1);
-        }
+        // if (d < 0) {
+        //     specular = vec4(0, 0, 0, 1);
+        // }
     }
     return mix(mix(ambient, diffuse), specular);
 }
